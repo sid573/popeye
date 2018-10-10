@@ -9,6 +9,7 @@ import imutils
 import cv2
 import time
 import urllib #for reading image from URL
+import theta as theta
  
  
 # construct the argument parse and parse the arguments
@@ -24,8 +25,8 @@ args = vars(ap.parse_args())
 #lower = {'red':(166, 84, 141), 'green':(66, 122, 129), 'blue':(97, 100, 117), 'yellow':(23, 59, 119), 'orange':(0, 50, 80)} #assign new item lower['blue'] = (93, 10, 0)
 #upper = {'red':(186,255,255), 'green':(86,255,255), 'blue':(117,255,255), 'yellow':(54,255,255), 'orange':(20,255,255)}
 
-lower = {'red':(2, 108, 76), 'green':(48,48,56), 'blue':(98,37,53), 'yellow':(23, 59, 119)} #assign new item lower['blue'] = (93, 10, 0)
-upper = {'red':(20,255,255), 'green':(93,154,138), 'blue':(124,185,113), 'yellow':(54,255,255)}
+lower = {'red':(0, 154, 130), 'green':(48,48,56), 'blue':(98,37,53), 'yellow':(23, 59, 119)} #assign new item lower['blue'] = (93, 10, 0)
+upper = {'red':(186,204,187), 'green':(93,154,138), 'blue':(124,185,113), 'yellow':(54,255,255)}
 
  
 # define standard colors for circle around the object
@@ -44,8 +45,13 @@ if args.get("image"):
 elif args.get("video"):
     cv2.VideoCapture(args["video"])
 else:
-    cv2.VideoCapture(0)
+    cv2.VideoCapture(1)
 
+
+theta_red = []
+theta_blue = []
+theta_green = []
+theta_yellow = []
 
 # keep looping
 
@@ -147,17 +153,44 @@ else:
                 if radius > 0.5:
                     # draw the circle and centroid on the frame,
                     # then update the list of tracked points
-                    cv2.circle(image, (int(x), int(y)), int(radius), colors[key], 2)
-                    cv2.putText(image,key + " ball", (int(x-radius),int(y-radius)), cv2.FONT_HERSHEY_SIMPLEX, 0.6,colors[key],2)
-                    print(str(key) + "Balloon : ",end=" ")
-                    print(center)
+	                cv2.circle(image, (int(x), int(y)), int(radius), colors[key], 2)
+	                cv2.putText(image,key + " ball", (int(x-radius),int(y-radius)), cv2.FONT_HERSHEY_SIMPLEX, 0.6,colors[key],2)
+	                
+	                x,y = center
+
+	                print(str(key) + "Balloon : ",end=" ")
+	                print(center);
+
+	                theta1,theta2,theta3 = theta.get_theta(x,y)
+
+	                if(key == 'red'):
+	                	theta_red = [theta1,theta2,theta3,y]
+	                elif(key == 'green'):
+	                	theta_green = [theta1,theta2,theta3,y]
+	                elif(key == 'blue'):
+	                	theta_blue = [theta1,theta2,theta3,y]
+	                elif(key == 'yellow'):
+	                	theta_yellow = [theta1,theta2,theta3,y]
+
+	                #RBGY
+	                if(key == 'red'):
+		                f = open("kriti_2.txt","w")
+		                f.write(str(theta_red[0]) + "," + str(theta_red[1]) + "," + str(theta_red[2]) + "," + str(theta_red[3]))
+
+	                #print(str(theta1) + " " + str(theta2) + " " + str(theta3))
+
+					#f = open("myfile.txt", "w")
+					#f.write(str(center))
+
     # show the frame to our screen
+
+
+
     cv2.imshow("image", image)
     print(image.shape)
     key = cv2.waitKey(0)
     time.sleep(1)
     
-
 
 
 # cleanup the camera and close any open windows
